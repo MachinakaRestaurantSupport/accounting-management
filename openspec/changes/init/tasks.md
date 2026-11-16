@@ -2,7 +2,7 @@
 
 ## 1. 基盤・アプリケーション実装
 
-- [ ] 1.1 Python プロジェクト基盤 (`pyproject.toml`) を作成し、pytest / ruff 設定を定義する
+- [x] 1.1 Python プロジェクト基盤 (`pyproject.toml`) を作成し、pytest / ruff 設定を定義する
 - [ ] 1.2 データモデル・インメモリストア・外部クライアント (`models.py`, `store.py`, `clients.py`) を実装する [AccountingManagement_R01.DM01-01, DM01-02, DM01-03]
 - [ ] 1.3 FastAPI アプリケーションと決済・ヘルスチェック API (`main.py`) を実装する [AccountingManagement_R01.DM01-01, DM01-02, DM01-03]
 
