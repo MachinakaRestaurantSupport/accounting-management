@@ -8,4 +8,4 @@
 
 ## 2. 単体試験・品質検証
 
-- [ ] 2.1 `httpx.MockTransport` を用いた決済・連携・異常系単体試験 (`tests/test_payments.py`) を実装し、全テストパスを確認する [AccountingManagement_R01.DM01-01, DM01-02, DM01-03]
+- [x] 2.1 `httpx.MockTransport` を用いた決済・連携・異常系単体試験 (`tests/test_payments.py`) を実装し、全テストパスを確認する [AccountingManagement_R01.DM01-01, DM01-02, DM01-03]
