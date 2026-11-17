@@ -52,6 +52,12 @@ class OrderClient(_BaseServiceClient):
         response.raise_for_status()
         return response.json() if response.content else {}
 
+    def list_orders(self) -> list[dict[str, Any]]:
+        """Fetch all orders from order-management."""
+        response = self._client.get("/orders")
+        response.raise_for_status()
+        return response.json()
+
 
 class GuestClient(_BaseServiceClient):
     """Client for the guest-management service (I-6)."""

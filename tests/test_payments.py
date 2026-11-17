@@ -187,3 +187,28 @@ def test_not_found_order_and_payment_return_404() -> None:
 
     payment_resp = client.get("/payments/non-existent")
     assert payment_resp.status_code == 404
+
+
+def test_accounting_ui_screens() -> None:
+    orders = {
+        "ord-1": {
+            "id": "ord-1",
+            "source": "dine_in",
+            "table_id": "T-05",
+            "total_amount": 1850,
+            "paid": False,
+        }
+    }
+    client, _ = _build_test_client(orders)
+    client.post(
+        "/payments",
+        json={"order_id": "ord-1", "method": "cash", "received_amount": 2000},
+    )
+    for path in (
+        "/ui/accounting/checkout",
+        "/ui/accounting/payment",
+        "/ui/accounting/receipt",
+    ):
+        res = client.get(path)
+        assert res.status_code == 200
+        assert "会計管理" in res.text

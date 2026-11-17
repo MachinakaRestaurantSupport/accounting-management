@@ -8,6 +8,7 @@ from fastapi import FastAPI, HTTPException, status
 from accounting_management.clients import GuestClient, OrderClient, SalesClient
 from accounting_management.models import HealthResponse, Payment, PaymentCreate
 from accounting_management.store import PaymentStore
+from accounting_management.ui import create_ui_router
 
 
 def create_app(
@@ -21,6 +22,7 @@ def create_app(
     resolved_order_client = order_client or OrderClient()
     resolved_guest_client = guest_client or GuestClient()
     resolved_sales_client = sales_client or SalesClient()
+    application.include_router(create_ui_router(store, resolved_order_client))
 
     @application.get("/health", response_model=HealthResponse)
     def health() -> HealthResponse:
