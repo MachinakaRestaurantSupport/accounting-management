@@ -67,7 +67,9 @@ def create_app(
         source = str(order.get("source", ""))
         table_id = order.get("table_id")
         if source == "dine_in" and table_id:
-            resolved_guest_client.request_cleaning(str(table_id))
+            bill = resolved_order_client.get_table_bill(str(table_id))
+            if not bill.get("order_ids"):
+                resolved_guest_client.request_cleaning(str(table_id))
 
         resolved_sales_client.record_sale(
             order_id=payload.order_id,

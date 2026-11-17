@@ -26,7 +26,26 @@ def _build_test_client(
             return httpx.Response(200, json=order)
         if request.method == "POST" and path.endswith("/mark-paid"):
             calls.append(("order", f"POST {path}", None))
+            order_id = path.removeprefix("/orders/").removesuffix("/mark-paid")
+            if order_id in orders:
+                orders[order_id]["paid"] = True
             return httpx.Response(200, json={"status": "paid"})
+        if request.method == "GET" and path.startswith("/tables/") and path.endswith("/bill"):
+            calls.append(("order", f"GET {path}", None))
+            table_id = path.removeprefix("/tables/").removesuffix("/bill")
+            unpaid = [
+                oid
+                for oid, o in orders.items()
+                if o.get("table_id") == table_id and not o.get("paid", False)
+            ]
+            return httpx.Response(
+                200,
+                json={
+                    "table_id": table_id,
+                    "order_ids": unpaid,
+                    "total_amount": sum(orders[oid]["total_amount"] for oid in unpaid),
+                },
+            )
         return httpx.Response(404)
 
     def guest_handler(request: httpx.Request) -> httpx.Response:
@@ -212,3 +231,38 @@ def test_accounting_ui_screens() -> None:
         res = client.get(path)
         assert res.status_code == 200
         assert "会計管理" in res.text
+
+
+def test_split_payment_same_table_requests_cleaning_only_after_last_order() -> None:
+    orders = {
+        "ord-a": {
+            "id": "ord-a",
+            "source": "dine_in",
+            "table_id": "T-10",
+            "total_amount": 1000,
+            "paid": False,
+        },
+        "ord-b": {
+            "id": "ord-b",
+            "source": "dine_in",
+            "table_id": "T-10",
+            "total_amount": 500,
+            "paid": False,
+        },
+    }
+    client, calls = _build_test_client(orders)
+
+    res_first = client.post(
+        "/payments",
+        json={"order_id": "ord-a", "method": "card", "received_amount": 1000},
+    )
+    assert res_first.status_code == 201
+    assert not any(c[0] == "guest" for c in calls)
+
+    res_second = client.post(
+        "/payments",
+        json={"order_id": "ord-b", "method": "cash", "received_amount": 500},
+    )
+    assert res_second.status_code == 201
+    guest_calls = [c for c in calls if c[0] == "guest"]
+    assert guest_calls == [("guest", "POST /tables/T-10/request-cleaning", None)]
