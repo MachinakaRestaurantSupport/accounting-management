@@ -58,6 +58,12 @@ class OrderClient(_BaseServiceClient):
         response.raise_for_status()
         return response.json()
 
+    def get_table_bill(self, table_id: str) -> dict[str, Any]:
+        """Fetch unpaid orders summary for a table."""
+        response = self._client.get(f"/tables/{table_id}/bill")
+        response.raise_for_status()
+        return response.json()
+
 
 class GuestClient(_BaseServiceClient):
     """Client for the guest-management service (I-6)."""
